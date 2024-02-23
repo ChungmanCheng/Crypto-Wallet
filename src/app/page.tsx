@@ -7,6 +7,7 @@ import { ethers } from 'ethers';
 
 interface WalletInfo {
     privateKey: string;
+	mnemonic: string;
     address: string;
 }
 
@@ -18,6 +19,7 @@ export default function Home() {
 		const randomWallet = ethers.Wallet.createRandom();
 		const walletData = {
 			privateKey: randomWallet.privateKey,
+			mnemonic: randomWallet.mnemonic.phrase,
 			address: randomWallet.address,
 		};
 		setWalletInfo(prevWalletInfo => prevWalletInfo ? [...prevWalletInfo, walletData] : [walletData]);
@@ -35,6 +37,7 @@ export default function Home() {
 						{walletInfo.map((wallet, index) => (
 						<div key={index} className="m-5">
 							<p>Private Key: {wallet.privateKey}</p>
+							<p>mnemonic: {wallet.mnemonic}</p>
 							<p>Address: {wallet.address}</p>
 						</div>
 						))}
