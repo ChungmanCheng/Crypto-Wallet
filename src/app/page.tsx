@@ -5,9 +5,14 @@ import Image from "next/image";
 import { useState } from 'react';
 import { ethers } from 'ethers';
 
+interface WalletInfo {
+    privateKey: string;
+    address: string;
+}
+
 export default function Home() {
 
-	const [walletInfo, setWalletInfo] = useState(null);
+	const [walletInfo, setWalletInfo] = useState<WalletInfo[] | null>(null);
 
 	const createWallet = async () => {
 		const randomWallet = ethers.Wallet.createRandom();
@@ -15,7 +20,7 @@ export default function Home() {
 			privateKey: randomWallet.privateKey,
 			address: randomWallet.address,
 		};
-		setWalletInfo(walletData);
+		setWalletInfo(prevWalletInfo => prevWalletInfo ? [...prevWalletInfo, walletData] : [walletData]);
 		return walletData;
 	};
 
@@ -25,8 +30,12 @@ export default function Home() {
 				<button onClick={createWallet}>Create Wallet</button>
 					{walletInfo && (
 						<div>
-							<p>Private Key: {walletInfo.privateKey}</p>
-							<p>Address: {walletInfo.address}</p>
+							{walletInfo.map((wallet, index) => (
+                            <div key={index} className="m-5">
+                                <p>Private Key: {wallet.privateKey}</p>
+                                <p>Address: {wallet.address}</p>
+                            </div>
+                        	))}
 						</div>
 					)}
 			</div>
