@@ -80,7 +80,6 @@ export default function Home() {
 										</div>
 										<div className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-2">
 											<button onClick={() => {}} className="mr-2 hover:text-[#8ad1c2]">Deposit</button>
-											<button onClick={() => {}} className="mx-2 hover:text-[#8ad1c2]">Withdraw</button>
 											<button onClick={() => {}} className="ml-2 hover:text-[#8ad1c2]">Send</button>
 										</div>
 									</div>
