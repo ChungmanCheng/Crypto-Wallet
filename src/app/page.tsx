@@ -10,6 +10,12 @@ interface WalletInfo {
     address: string;
 }
 
+interface WalletData {
+	privateKey: string;
+	address: string;
+	balance: number;
+}
+
 const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL;
 
 export default function Home() {
@@ -22,6 +28,7 @@ export default function Home() {
 	const [recoveryPhrase, setRecoveryPhrase] = useState('');
 	const [errorMessage, setErrorMessage] = useState('');
 	const [balance, setBalance] = useState("--");
+	const [walletList, setWalletList] = useState<WalletData[] | null>([]);
 
 
 	useEffect(() => {
@@ -39,6 +46,27 @@ export default function Home() {
 				});
 		}
 	}, [walletInfo]);
+
+	const AddDeriveWallet = () => {
+		const hdNode = ethers.Wallet.fromPhrase(walletInfo.mnemonic.phrase);
+		const childNode = hdNode.deriveChild(walletList?.length);
+		const provider = new ethers.JsonRpcProvider(rpcUrl);
+		let balanceInEth;
+		provider.getBalance(childNode.address)
+			.then(balance => {
+				// Convert the balance to ETH
+				balanceInEth = ethers.formatEther(balance);
+				const newWallet: WalletData = {
+					privateKey: childNode.privateKey,
+					address: childNode.address,
+					balance: balanceInEth
+				};
+				setWalletList(prevWallets => [...prevWallets, newWallet]);
+			})
+			.catch(error => {
+				console.error('Error:', error);
+			});
+	};
 
 	const handleNext = () => {
 		setCurrentPage(currentPage + 1); // Increment current page
@@ -226,8 +254,36 @@ export default function Home() {
 									</>
 								)}
 							</div>
+							
 						</div>
+						{walletList.map((wallet, index) => (
+						<div className="flex flex-col col-span-full md:col-span-6 xl:col-span-4 bg-white dark:bg-[#202123] shadow-lg rounded-3xl border border-slate-200 dark:border-slate-700">
+							<div className="px-5 py-5">
+								<h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">Wallet</h2>
+								<div className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase mb-1">ETH</div>
+								<div key={index} className="">
+									<div className="flex items-start">
+										<div className="text-3xl font-bold text-slate-800 dark:text-slate-100 mr-2">{wallet.balance}</div>
+									</div>
+									<div className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-2">
+										<div className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase mb-1">{wallet.address}</div>
+										<button onClick={() => handleDeposit(wallet)} className="mr-2 hover:text-[#8ad1c2]">Deposit</button>
+										<button onClick={() => handleSend(wallet)} className="ml-2 hover:text-[#8ad1c2]">Send</button>
+									</div>
+								</div>
+							</div>
+						</div>
+						))}
 					</div>
+					
+					{(isConfirmAccount && walletInfo)?(
+						<>
+							<button onClick={() => AddDeriveWallet()} className="ml-2 hover:text-[#8ad1c2]">Add derive wallet</button>
+						</>
+					):(
+						<>
+						</>
+					)}
 				</div>
 			</div>
 		</main>
