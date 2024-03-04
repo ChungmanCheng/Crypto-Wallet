@@ -32,8 +32,6 @@ export default function Home() {
 				.then(balance => {
 					// Convert the balance to ETH
 					const balanceInEth = ethers.formatEther(balance);
-					console.log('Balance:', balanceInEth, 'ETH');
-					console.log("Address: ", walletInfo.address);
 					setBalance(balanceInEth);
 				})
 				.catch(error => {
@@ -101,6 +99,7 @@ export default function Home() {
 											<div className="text-3xl font-bold text-slate-800 dark:text-slate-100 mr-2">{balance}</div>
 										</div>
 										<div className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-2">
+											<div className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase mb-1">{walletInfo.address}</div>
 											<button onClick={() => {}} className="mr-2 hover:text-[#8ad1c2]">Deposit</button>
 											<button onClick={() => {}} className="ml-2 hover:text-[#8ad1c2]">Send</button>
 										</div>
