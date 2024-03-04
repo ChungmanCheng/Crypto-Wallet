@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
 interface WalletInfo {
@@ -9,6 +9,8 @@ interface WalletInfo {
 	mnemonic: string;
     address: string;
 }
+
+const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL;
 
 export default function Home() {
 
@@ -19,6 +21,26 @@ export default function Home() {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [recoveryPhrase, setRecoveryPhrase] = useState('');
 	const [errorMessage, setErrorMessage] = useState('');
+	const [balance, setBalance] = useState("--");
+
+
+	useEffect(() => {
+		if (walletInfo && walletInfo.address) {
+			const provider = new ethers.JsonRpcProvider(rpcUrl);
+	
+			provider.getBalance(walletInfo.address)
+				.then(balance => {
+					// Convert the balance to ETH
+					const balanceInEth = ethers.formatEther(balance);
+					console.log('Balance:', balanceInEth, 'ETH');
+					console.log("Address: ", walletInfo.address);
+					setBalance(balanceInEth);
+				})
+				.catch(error => {
+					console.error('Error:', error);
+				});
+		}
+	}, [walletInfo]);
 
 	const handleNext = () => {
 		setCurrentPage(currentPage + 1); // Increment current page
@@ -76,7 +98,7 @@ export default function Home() {
 								{(isConfirmAccount && walletInfo)?(
 									<div>
 										<div className="flex items-start">
-											<div className="text-3xl font-bold text-slate-800 dark:text-slate-100 mr-2">0</div>
+											<div className="text-3xl font-bold text-slate-800 dark:text-slate-100 mr-2">{balance}</div>
 										</div>
 										<div className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-2">
 											<button onClick={() => {}} className="mr-2 hover:text-[#8ad1c2]">Deposit</button>
